@@ -13,9 +13,9 @@ import paho.mqtt.client as mqtt
 power_supply = None
 
 # without trailing /
-err_topic = 'unset'
-stat_topic = 'unset'
-cmnd_topic = 'unset'
+err_topic = None
+stat_topic = None
+cmnd_topic = None
 
 
 def cmnd_output(msg):
@@ -66,18 +66,15 @@ def stat_json():
 
 
 def cmnd_err(command, msg):
-    log.error(f"Unknown command for {cmnd_topic}/{command}: {msg}")
-    client.publish(
-        err_topic,
-        f"Unknown command for {cmnd_topic}/{command}: {msg}"
-    )
+    error_message = f"Unknown command for {cmnd_topic}/{command}: {msg}"
+    log.error(error_message)
+    client.publish(err_topic, error_message)
 
 
 def on_connect(client, userdata, flags, rc):
     log.info("MQTT connected with result code {str(rc)}")
     if rc == 5:
-        log.critical('Incorrect MQTT login credentials')
-        sys.exit(2)
+        sys.exit("Incorrect MQTT login credentials")
 
     # Subscribing in on_connect() means that if we lose the connection and
     # reconnect then subscriptions will be renewed.
@@ -175,8 +172,7 @@ def main():
     try:
         power_supply = KoradSerial(args.COM)
     except serial.serialutil.SerialException:
-        log.critical(f"Bad serial port: {args.COM}")
-        sys.exit(1)
+        sys.exit(f"Bad serial port: {args.COM}")
 
     log.info(f"Power supply model: {power_supply.model}")
     log.info(f"Power supply status: {power_supply.status}")
