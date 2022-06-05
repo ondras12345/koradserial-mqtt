@@ -46,8 +46,8 @@ COMMANDS = {
 
 def stat_output():
     out = power_supply.status.output
-    log.debug('Output state: {}'.format(out))
-    client.publish('{}/output'.format(stat_topic), out.name)
+    log.debug(f"Output state: {out}")
+    client.publish(f"{stat_topic}/output", out.name)
 
 
 class StatusEncoder(json.JSONEncoder):
@@ -62,27 +62,27 @@ def stat_json():
     status = power_supply.status
     status_json = StatusEncoder().encode(vars(status))
     log.debug('Sending JSON status')
-    client.publish('{}/json'.format(stat_topic), status_json)
+    client.publish(f"{stat_topic}/json", status_json)
 
 
 def cmnd_err(command, msg):
-    log.error('Unknown command for {}/{}: {}'.format(cmnd_topic,
-                                                     command, msg))
-    client.publish(err_topic,
-                   'Unknown command for {}/{}: {}'.format(cmnd_topic, command,
-                                                          msg))
+    log.error(f"Unknown command for {cmnd_topic}/{command}: {msg}")
+    client.publish(
+        err_topic,
+        f"Unknown command for {cmnd_topic}/{command}: {msg}"
+    )
 
 
 def on_connect(client, userdata, flags, rc):
-    log.info('MQTT connected with result code {}'.format(str(rc)))
+    log.info("MQTT connected with result code {str(rc)}")
     if rc == 5:
         log.critical('Incorrect MQTT login credentials')
         sys.exit(2)
 
     # Subscribing in on_connect() means that if we lose the connection and
     # reconnect then subscriptions will be renewed.
-    log.debug('Subscribing to {}/+'.format(cmnd_topic))
-    client.subscribe('{}/+'.format(cmnd_topic))
+    log.debug(f"Subscribing to {cmnd_topic}/+")
+    client.subscribe(f"{cmnd_topic}/+")
 
 
 # Python3.9 has removeprefix, but this program needs to work without it
@@ -93,8 +93,8 @@ def remove_prefix(text, prefix):
 
 
 def on_message(client, userdata, msg):
-    log.debug('{}: {}'.format(msg.topic, str(msg.payload)))
-    command = remove_prefix(msg.topic, '{}/'.format(cmnd_topic))
+    log.debug(f"{msg.topic}: {msg.payload}")
+    command = remove_prefix(msg.topic, f"{cmnd_topic}/")
     if command in COMMANDS:
         COMMANDS[command](msg.payload.decode('ascii'))
 
@@ -161,33 +161,32 @@ def main():
         log.addHandler(handler)
 
     global err_topic
-    err_topic = '{}/err'.format(args.topic)
-    log.debug('err topic: {}'.format(err_topic))
+    err_topic = f"{args.topic}/err"
+    log.debug(f"err topic: {err_topic}")
     global stat_topic
-    stat_topic = '{}/stat'.format(args.topic)
-    log.debug('stat topic: {}'.format(stat_topic))
+    stat_topic = f"{args.topic}/stat"
+    log.debug(f"stat topic: {stat_topic}")
     global cmnd_topic
-    cmnd_topic = '{}/cmnd'.format(args.topic)
-    log.debug('cmnd topic: {}'.format(cmnd_topic))
+    cmnd_topic = f"{args.topic}/cmnd"
+    log.debug(f"cmnd topic: {cmnd_topic}")
 
     log.info('Connecting to the power supply')
     global power_supply
     try:
         power_supply = KoradSerial(args.COM)
     except serial.serialutil.SerialException:
-        log.critical('Bad serial port: {}'.format(args.COM))
+        log.critical(f"Bad serial port: {args.COM}")
         sys.exit(1)
 
-    log.info('Power supply model: {}'.format(power_supply.model))
-    log.info('Power supply status: {}'.format(power_supply.status))
+    log.info(f"Power supply model: {power_supply.model}")
+    log.info(f"Power supply status: {power_supply.status}")
 
     try:
         global client
         client = mqtt.Client()
         client.on_connect = on_connect
         client.on_message = on_message
-        log.info('Connecting to MQTT on {}:{}'.format(args.hostname,
-                                                      args.port))
+        log.info(f"Connecting to MQTT on {args.hostname}:{args.port}")
         if args.username is not None:
             password = args.password
             if password is None:
