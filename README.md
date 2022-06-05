@@ -25,31 +25,28 @@ Currently, it is only possible to turn the output on and off.
 
 ## Usage
 ### Command line arguments
-```
+```shell
 $ ./koradserial_mqtt.py -H
-usage: koradserial_mqtt.py [--help] [--hostname HOSTNAME] [--port PORT]
-                           [--topic TOPIC] [--username USERNAME]
-                           [--password PASSWORD] [--verbose]
-                           [--logfile LOGFILE]
-                           COM
+usage: koradserial_mqtt.py [-H] [-h HOSTNAME] [-p PORT] [-t TOPIC]
+                           [-u USERNAME] [-P PASSWORD] [-v] [--logfile LOGFILE]
+                           device
 
 positional arguments:
-  COM                   Serial port the power supply is attached to
+  device                serial port the power supply is attached to
 
 optional arguments:
-  --help, -H            show this help message and exit
-  --hostname HOSTNAME, -h HOSTNAME
+  -H, --help            show this help message and exit
+  -h HOSTNAME, --hostname HOSTNAME
                         MQTT broker host (default: localhost)
-  --port PORT, -p PORT  MQTT broker port (default: 1883)
-  --topic TOPIC, -t TOPIC
+  -p PORT, --port PORT  MQTT broker port (default: 1883)
+  -t TOPIC, --topic TOPIC
                         MQTT topic prefix (default: lab/KORAD)
-  --username USERNAME, -u USERNAME
+  -u USERNAME, --username USERNAME
                         MQTT username (default: anonymous login)
-  --password PASSWORD, -P PASSWORD
+  -P PASSWORD, --password PASSWORD
                         MQTT password (default: prompt for password)
-  --verbose, -v         Log debug level messages
-  --logfile LOGFILE     File to output the log to. (default: stderr)
-
+  -v, --verbose         log debug level messages
+  --logfile LOGFILE     file to output the log to (default: stderr)
 ```
 
 ### Turn on the output

@@ -100,32 +100,32 @@ def main():
     # add_help=False avoids conflict with -h for hostname
     parser = argparse.ArgumentParser(add_help=False)
 
-    parser.add_argument('--help', '-H', action='help',
-                        help='show this help message and exit')
+    parser.add_argument("-H", "--help", action="help",
+                        help="show this help message and exit")
 
-    parser.add_argument('--hostname', '-h', default='localhost',
-                        help='MQTT broker host (default: localhost)')
+    parser.add_argument("-h", "--hostname", default="localhost",
+                        help="MQTT broker host (default: %(default)s)")
 
-    parser.add_argument('--port', '-p', type=int, default=1883,
-                        help='MQTT broker port (default: 1883)')
+    parser.add_argument("-p", "--port", type=int, default=1883,
+                        help="MQTT broker port (default: %(default)d)")
 
-    parser.add_argument('--topic', '-t', default='lab/KORAD',
-                        help='MQTT topic prefix (default: lab/KORAD)')
+    parser.add_argument("-t", "--topic", default="lab/KORAD",
+                        help="MQTT topic prefix (default: %(default)s)")
 
-    parser.add_argument('--username', '-u', default=None,
-                        help='MQTT username (default: anonymous login)')
+    parser.add_argument("-u", "--username", default=None,
+                        help="MQTT username (default: anonymous login)")
 
-    parser.add_argument('--password', '-P', default=None,
-                        help='MQTT password (default: prompt for password)')
+    parser.add_argument("-P", "--password", default=None,
+                        help="MQTT password (default: prompt for password)")
 
-    parser.add_argument('--verbose', '-v', action='store_true',
-                        help='Log debug level messages')
+    parser.add_argument("-v", "--verbose", action="store_true",
+                        help="log debug level messages")
 
-    parser.add_argument('--logfile', default=None,
-                        help='File to output the log to. (default: stderr)')
+    parser.add_argument("--logfile", default=None,
+                        help="file to output the log to (default: stderr)")
 
-    parser.add_argument('COM',
-                        help='Serial port the power supply is attached to')
+    parser.add_argument("device",
+                        help="serial port the power supply is attached to")
 
     global args
     args = parser.parse_args()
@@ -170,9 +170,9 @@ def main():
     log.info('Connecting to the power supply')
     global power_supply
     try:
-        power_supply = KoradSerial(args.COM)
+        power_supply = KoradSerial(args.device)
     except serial.serialutil.SerialException:
-        sys.exit(f"Bad serial port: {args.COM}")
+        sys.exit(f"Bad serial port: {args.device}")
 
     log.info(f"Power supply model: {power_supply.model}")
     log.info(f"Power supply status: {power_supply.status}")
