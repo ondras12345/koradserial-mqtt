@@ -72,7 +72,7 @@ def cmnd_err(command, msg):
 
 
 def on_connect(client, userdata, flags, rc):
-    log.info("MQTT connected with result code {str(rc)}")
+    log.info(f"MQTT connected with result code {str(rc)}")
     if rc == 5:
         sys.exit("Incorrect MQTT login credentials")
 
