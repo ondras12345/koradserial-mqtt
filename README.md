@@ -89,6 +89,9 @@ $ mosquitto_sub -h broker_ip -t lab/KORAD/stat/json -u user -P 'password'
 To make this start automatically when the power supply is connected to a
 GNU/Linux server, a `systemd` service can be created.
 
+**WARNING**: This is not all that useful, because the program blocks the local
+control panel of the power supply for a while when it starts.
+
 It is necessary that the device file name of your power supply stays the same
 between restarts of the server. Udev rules can be used to achieve this.
 
