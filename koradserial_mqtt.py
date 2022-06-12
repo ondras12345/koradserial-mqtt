@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 import sys
 import argparse
 import logging
@@ -16,6 +17,9 @@ power_supply = None
 err_topic = None
 stat_topic = None
 cmnd_topic = None
+
+ENVIRON_USERNAME = "KORADSERIAL_MQTT_USERNAME"
+ENVIRON_PASSWORD = "KORADSERIAL_MQTT_PASSWORD"
 
 
 def cmnd_output(msg):
@@ -112,11 +116,17 @@ def main():
     parser.add_argument("-t", "--topic", default="lab/KORAD",
                         help="MQTT topic prefix (default: %(default)s)")
 
-    parser.add_argument("-u", "--username", default=None,
-                        help="MQTT username (default: anonymous login)")
+    parser.add_argument(
+        "-u", "--username", default=None,
+        help=f"MQTT username (default: {ENVIRON_USERNAME} environment "
+             "variable if it exists, otherwise anonymous login)"
+    )
 
-    parser.add_argument("-P", "--password", default=None,
-                        help="MQTT password (default: prompt for password)")
+    parser.add_argument(
+        "-P", "--password", default=None,
+        help=f"MQTT password (default: {ENVIRON_PASSWORD} environment "
+             "variable if it exists, otherwise prompt for password)"
+    )
 
     parser.add_argument("-v", "--verbose", action="store_true",
                         help="log debug level messages")
@@ -183,12 +193,17 @@ def main():
         client.on_connect = on_connect
         client.on_message = on_message
         log.info(f"Connecting to MQTT on {args.hostname}:{args.port}")
-        if args.username is not None:
+        username = args.username
+        if username is None:
+            username = os.environ.get(ENVIRON_USERNAME)
+        if username is not None:
             password = args.password
+            if password is None:
+                password = os.environ.get(ENVIRON_PASSWORD)
             if password is None:
                 password = getpass()
 
-            client.username_pw_set(args.username, password)
+            client.username_pw_set(username, password)
 
         client.connect(args.hostname, args.port, 60)
         client.loop_forever()
