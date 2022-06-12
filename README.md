@@ -83,3 +83,73 @@ Full status:
 $ mosquitto_sub -h broker_ip -t lab/KORAD/stat/json -u user -P 'password'
 {"raw": 65, "channel1": "constant_voltage", "channel2": "constant_current", "tracking": "independent", "beep": "off", "lock": "off", "output": "on"}
 ```
+
+
+## Udev rules and systemd service
+To make this start automatically when the power supply is connected to a
+GNU/Linux server, a `systemd` service can be created.
+
+It is necessary that the device file name of your power supply stays the same
+between restarts of the server. Udev rules can be used to achieve this.
+
+You'll need to know what the attributes of your power supply are. Use the
+following command to find out.
+```sh
+udevadm info --name=/dev/ttyUSB0 --attribute-walk
+```
+
+Fill in the attributes here:
+```sh
+sudo tee -a /etc/udev/rules.d/51-ttyUSB-symlinks.rules << EOF
+# Korad KA3005P
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0416", ATTRS{idProduct}=="5011", ATTRS{serial}=="NT2009101400", SYMLINK+="ttyUSB-korad"
+EOF
+
+sudo udevadm control --reload-rules
+```
+When the power power supply is next connected, it should be accessible as
+`/dev/ttyUSB-korad` in addition to the regular `/dev/ttyUSBx` file.
+
+A systemd unit file can now be created to make this program start
+automatically. This example is assuming that the `mosquitto` MQTT broker is
+running on the same computer as this program.
+
+For this example, the program should be installed in `/opt/koradserial-mqtt`:
+```sh
+cd /opt
+sudo mkdir koradserial-mqtt
+sudo chown $USERNAME:$USERNAME koradserial-mqtt
+python3 -m venv koradserial-mqtt
+. /opt/koradserial-mqtt/bin/activate
+pip3 install git+https://github.com/ondras12345/koradserial-mqtt.git
+```
+
+The program is started as the `homeassistant` user. That user will most likely
+not exist on your server, so please put in a valid username.
+
+```sh
+sudo tee /etc/systemd/system/koradserial_mqtt.service << EOF
+[Unit]
+Description=MQTT control for KORAD KA3005P power supply
+After=mosquitto.service dev-ttyUSB\\x2dkorad.device
+
+[Service]
+User=homeassistant
+ExecStart=/opt/koradserial-mqtt/bin/koradserial_mqtt.py /dev/ttyUSB-korad
+Restart=no
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload
+sudo systemctl enable koradserial_mqtt.service
+```
+
+Modify the udev rule to start the service when the device is connected:
+```sh
+
+sudo sed '/ttyUSB-korad/s/$/, TAG+="systemd", ENV{SYSTEMD_WANTS}+="koradserial_mqtt.service"/' -i /etc/udev/rules.d/51-ttyUSB-symlinks.rules
+
+sudo udevadm control --reload-rules
+```
