@@ -8,25 +8,16 @@ Currently, it is only possible to turn the output on and off.
 
 
 ## Installation
-- install pyserial
-  ```
-  pip3 install pyserial
-  ```
-- install paho-mqtt
-  ```
-  pip3 install paho-mqtt
-  ```
-- clone https://github.com/starforgelabs/py-korad-serial
-  ```
-  git clone https://github.com/starforgelabs/py-korad-serial.git koradserial
-  touch ./koradserial/__init__.py
-  ```
+Clone this repository, `cd` into it and run
+```sh
+pip3 install .
+```
 
 
 ## Usage
 ### Command line arguments
 ```shell
-$ ./koradserial_mqtt.py -H
+$ koradserial_mqtt.py -H
 usage: koradserial_mqtt.py [-H] [-h HOSTNAME] [-p PORT] [-t TOPIC]
                            [-u USERNAME] [-P PASSWORD] [-v] [--logfile LOGFILE]
                            device

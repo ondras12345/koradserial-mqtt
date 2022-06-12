@@ -1,0 +1,3 @@
+[submodule "koradserial"]
+	path = koradserial
+	url = https://github.com/starforgelabs/py-korad-serial.git
