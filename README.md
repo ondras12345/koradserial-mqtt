@@ -4,7 +4,7 @@ MQTT control for KORAD KA3005P power supply
 A simple MQTT interface for the KORAD KA3005P power supply written in Python.
 
 **WARNING**: This project is still in development.
-Currently, it is only possible to turn the output on and off.
+Currently, it is only possible to control channel 1.
 
 
 ## Installation
@@ -41,8 +41,15 @@ optional arguments:
 ```
 
 ### Turn on the output
-```
+```shell
 mosquitto_pub -h broker_ip -t lab/KORAD/cmnd/output -u user -P 'password' -m "on"
+```
+
+
+### Set output voltage and current
+```shell
+mosquitto_pub -h broker_ip -t lab/KORAD/cmnd/voltage -u user -P 'password' -m "3.3"
+mosquitto_pub -h broker_ip -t lab/KORAD/cmnd/current -u user -P 'password' -m "1.5"
 ```
 
 ### Get status

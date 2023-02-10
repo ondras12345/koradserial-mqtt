@@ -9,6 +9,7 @@ from enum import Enum
 from getpass import getpass
 from koradserial.koradserial import KoradSerial
 import paho.mqtt.client as mqtt
+from typing import Dict, Callable
 
 
 power_supply = None
@@ -22,7 +23,7 @@ ENVIRON_USERNAME = "KORADSERIAL_MQTT_USERNAME"
 ENVIRON_PASSWORD = "KORADSERIAL_MQTT_PASSWORD"
 
 
-def cmnd_output(msg):
+def cmnd_output(msg: str) -> None:
     OUTPUT_CMDS = {
         'on': power_supply.output.on,
         'off': power_supply.output.off,
@@ -37,14 +38,34 @@ def cmnd_output(msg):
         cmnd_err('output', msg)
 
 
-def cmnd_status(msg):
+def cmnd_status(msg: str) -> None:
     stat_json()
 
 
-COMMANDS = {
+def cmnd_voltage(msg: str) -> None:
+    try:
+        voltage = float(msg)
+    except ValueError as e:
+        cmnd_err('voltage', str(e))
+        return
+    power_supply.channels[0].voltage = voltage
+
+
+def cmnd_current(msg: str) -> None:
+    try:
+        current = float(msg)
+    except ValueError as e:
+        cmnd_err('current', str(e))
+        return
+    power_supply.channels[0].current = current
+
+
+COMMANDS: Dict[str, Callable[[str], None]] = {
     # MQTT topic after cmnd: function
     'output': cmnd_output,
     'status': cmnd_status,
+    'voltage': cmnd_voltage,
+    'current': cmnd_current,
 }
 
 
@@ -69,7 +90,7 @@ def stat_json():
     client.publish(f"{stat_topic}/json", status_json)
 
 
-def cmnd_err(command, msg):
+def cmnd_err(command: str, msg: str) -> None:
     error_message = f"Unknown command for {cmnd_topic}/{command}: {msg}"
     log.error(error_message)
     client.publish(err_topic, error_message)
@@ -205,7 +226,7 @@ def main():
 
             client.username_pw_set(username, password)
 
-        client.connect(args.hostname, args.port, 60)
+        client.connect(args.hostname, args.port)
         client.loop_forever()
 
     except KeyboardInterrupt:
