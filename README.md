@@ -165,3 +165,4 @@ sudo udevadm control --reload-rules
 ## TODO
 - case insensitive commands
 - periodically poll the device
+- read voltage and current
