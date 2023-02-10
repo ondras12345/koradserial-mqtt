@@ -16,7 +16,7 @@ pip3 install .
 
 ## Usage
 ### Command line arguments
-```shell
+```
 $ koradserial_mqtt.py -H
 usage: koradserial_mqtt.py [-H] [-h HOSTNAME] [-p PORT] [-t TOPIC]
                            [-u USERNAME] [-P PASSWORD] [-v] [--logfile LOGFILE]
@@ -40,14 +40,13 @@ optional arguments:
   --logfile LOGFILE     file to output the log to (default: stderr)
 ```
 
-### Turn on the output
-```shell
+### Turn the output on
+```sh
 mosquitto_pub -h broker_ip -t lab/KORAD/cmnd/output -u user -P 'password' -m "on"
 ```
 
-
 ### Set output voltage and current
-```shell
+```sh
 mosquitto_pub -h broker_ip -t lab/KORAD/cmnd/voltage -u user -P 'password' -m "3.3"
 mosquitto_pub -h broker_ip -t lab/KORAD/cmnd/current -u user -P 'password' -m "1.5"
 ```
@@ -60,33 +59,33 @@ power supply.
 
 #### Listen for the response
 Output status:
-```shell
+```sh
 $ mosquitto_sub -h broker_ip -t lab/KORAD/stat/output -u user -P 'password'
 ```
 Full status:
-```shell
+```sh
 $ mosquitto_sub -h broker_ip -t lab/KORAD/stat/json -u user -P 'password'
 ```
 
 #### Request the status
 Output status:
-```shell
+```sh
 $ mosquitto_pub -h broker_ip -t lab/KORAD/cmnd/output -u user -P 'password' -m "?"
 ```
 Full status:
-```shell
+```sh
 $ mosquitto_pub -h broker_ip -t lab/KORAD/cmnd/status -u user -P 'password' -m "?"
 ```
 
 #### Result
 Output status:
-```shell
+```sh
 $ mosquitto_sub -h broker_ip -t lab/KORAD/stat/output -u user -P 'password'
 on
 ```
 
 Full status:
-```shell
+```sh
 $ mosquitto_sub -h broker_ip -t lab/KORAD/stat/json -u user -P 'password'
 {"raw": 65, "channel1": "constant_voltage", "channel2": "constant_current", "tracking": "independent", "beep": "off", "lock": "off", "output": "on"}
 ```
@@ -163,3 +162,9 @@ sudo sed '/ttyUSB-korad/s/$/, TAG+="systemd", ENV{SYSTEMD_WANTS}+="koradserial_m
 
 sudo udevadm control --reload-rules
 ```
+
+
+
+## TODO
+- case insensitive commands
+- periodically poll the device
