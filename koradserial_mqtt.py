@@ -101,6 +101,9 @@ def on_connect(client, userdata, flags, rc):
     if rc == 5:
         sys.exit("Incorrect MQTT login credentials")
 
+    client.publish(f'{stat_topic}/availability', 'online',
+                   retain=True)
+
     # Subscribing in on_connect() means that if we lose the connection and
     # reconnect then subscriptions will be renewed.
     log.debug(f"Subscribing to {cmnd_topic}/+")
@@ -226,11 +229,15 @@ def main():
 
             client.username_pw_set(username, password)
 
+        client.will_set(f'{stat_topic}/availability', 'offline',
+                        retain=True)
         client.connect(args.hostname, args.port)
         client.loop_forever()
 
     except KeyboardInterrupt:
         log.info('^C received. Stopping')
+        client.publish(f'{stat_topic}/availability',
+                       'offline', retain=True)
         client.disconnect()
         power_supply.close()
 
