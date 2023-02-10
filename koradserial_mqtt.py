@@ -208,9 +208,6 @@ def main():
     except serial.serialutil.SerialException:
         sys.exit(f"Bad serial port: {args.device}")
 
-    log.info(f"Power supply model: {power_supply.model}")
-    log.info(f"Power supply status: {power_supply.status}")
-
     try:
         global client
         client = mqtt.Client()
